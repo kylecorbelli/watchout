@@ -39,8 +39,8 @@ var drag = d3.behavior.drag()
     return {x: t.attr("x"), y: t.attr("y")}
   })
   .on('drag', function(d) {
-    var x = stanData.x = d3.event.x;
-    var y = stanData.y = d3.event.y;
+    var x = stanData.x = Math.min(Math.max(d3.event.x, 0), 1750);
+    var y = stanData.y = Math.min(Math.max(d3.event.y, 0), 750);
     d3.select(this)
       .attr('x', x)
       .attr('y', y);
@@ -158,8 +158,6 @@ var moveRocks = function() {
   .tween("custom", function(d, i) {
     
     var enemy = d3.select(this);
-
-
 
     var startPosition = {
       x: parseInt(enemy.attr("x")),
