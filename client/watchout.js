@@ -13,7 +13,7 @@
 
 var asteroidImage = './asteroid.png';
 var stanImage = 'http://cliparts.co/cliparts/Lid/ojR/LidojRA8T.png';
-var asteroidCount = 1;
+var asteroidCount = 3;
 var asteroids = [];
 
 
@@ -24,7 +24,8 @@ var height = w.innerHeight;
 var scoreboard = {
   highScore: 0,
   currentScore: 0,
-  collision: false
+  collision: false,
+  numCollisions: 0
 };
 
 var stanData = {
@@ -36,7 +37,6 @@ var drag = d3.behavior.drag()
   .on('drag', function(d) {
     var x = stanData.x = d3.event.x;
     var y = stanData.y = d3.event.y;
-    console.log("stan x:", x, "stan y:", y);
     d3.select(this)
       .attr('x', x)
       .attr('y', y);
@@ -49,6 +49,33 @@ var ramboX = function(){
 var ramboY = function(){
   return Math.min(Math.floor(Math.random() * height), height - 100);
 };
+
+throttle = function(func, wait) {  
+  var free = true;
+
+  var setFree = function(){
+    free = true;
+  }
+
+  var setWait = function(){
+    setInterval(setFree, wait)
+  };
+
+  return function(){
+    if(free){
+      free = false;
+      setWait();
+      return func.apply(null,arguments);
+    }
+  }
+};
+
+var increaseCollisionCount = function(){
+  scoreboard.numCollisions++;
+};
+
+var tamedIncreaseCollisionCount = throttle(increaseCollisionCount, 2000);
+
 
 for(var i=0; i<asteroidCount; i++){
   var dataObject = {
@@ -94,6 +121,14 @@ select.data(asteroids)
   .attr('xlink:href', asteroidImage);
 
 
+
+
+
+
+
+
+
+
 var moveRocks = function() {
 
   var determineNextXLoc = function(){
@@ -112,32 +147,60 @@ var moveRocks = function() {
 
   var rocks = d3.select('svg').selectAll('.asteroid');
   rocks.transition()
-  .attr("x", determineNextXLoc)
-  .attr("y", determineNextYLoc)
-  .duration(6000)
+  // .attr("x", determineNextXLoc)
+  // .attr("y", determineNextYLoc)
+  .duration(1000)
   .tween("custom", function(d, i) {
-    var xInterp = d3.interpolate(d.x, ramboX());
-    var yInterp = d3.interpolate(d.y, ramboY());
+    
+    var enemy = d3.select(this);
+
+
+
+    var startPosition = {
+      x: parseInt(enemy.attr("x")),
+      y: parseInt(enemy.attr("y"))
+    };
+
+    var endPosition = {
+      x: ramboX(),
+      y: ramboY()
+    };
+
+    var hasCollided = false;
+
     return function(t) {
-      // debugger;
-      console.log(Math.abs(Math.floor(xInterp(t)) - stanData.x) + "\n" + Math.abs(stanData.y - Math.floor(yInterp(t))));
-      if(Math.abs(xInterp(t) - stanData.x) < 100 && Math.abs(stanData.y - yInterp(t)) < 100){
-        scoreboard.collision = true;
-        scoreboard.currentScore = 0;
+      if (!hasCollided) {
+        if(Math.abs(enemy.attr("x") - stanData.x) < 100 && Math.abs(stanData.y - enemy.attr("y")) < 100){
+          hasCollided = true;
+          scoreboard.collision = true;
+          tamedIncreaseCollisionCount();
+          scoreboard.currentScore = 0;
+        }
       }
+      
+       
+      var updatePosition = {
+        x: parseInt(startPosition.x) + (endPosition.x - startPosition.x) * t,
+        y: parseInt(startPosition.y) + (endPosition.y - startPosition.y) * t
+      };
+
+      enemy.attr("x", updatePosition.x);
+      enemy.attr("y", updatePosition.y);
+
     };
   });
 };
 
-setInterval(moveRocks, 6000);
+setInterval(moveRocks, 1000);
 
 setInterval(function(){
   //updating the data
+  scoreboard.highScore = Math.max(scoreboard.currentScore, scoreboard.highScore);
   scoreboard.currentScore++;
-  var select = d3.select('h1')
-  .data([scoreboard.currentScore])
+  var select = d3.selectAll('h1')
+  .data(["Conversations avoided: " + scoreboard.currentScore, "High Score: " + scoreboard.highScore, "Conversations: " + scoreboard.numCollisions])
   .text(function(d){
-    return "Score: "+ d;
+    return d;
   });
 }, 100);
 
