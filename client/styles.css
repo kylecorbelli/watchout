@@ -7,13 +7,16 @@ body{
   background-color: black;
 }
 
-image{
-  height: 200px;
-  width: 200px;
+.asteroid, image{
+  height: 100px;
+  width: 100px;
+  border: 1px solid red;
+  stroke: red;
 }
 .board{
   height: 1000px;
 }
+
 
 h1{
   color: white;
