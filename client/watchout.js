@@ -11,9 +11,9 @@
 */
 
 
-var asteroidImage = './asteroid.png';
+var asteroidImage = 'http://worldartsme.com/images/worried-people-clipart-1.jpg';
 var stanImage = 'http://cliparts.co/cliparts/Lid/ojR/LidojRA8T.png';
-var asteroidCount = 3;
+var asteroidCount = 10;
 var asteroids = [];
 
 
@@ -34,6 +34,10 @@ var stanData = {
 };
 
 var drag = d3.behavior.drag()
+  .origin(function(){
+    var t = d3.select(this);
+    return {x: t.attr("x"), y: t.attr("y")}
+  })
   .on('drag', function(d) {
     var x = stanData.x = d3.event.x;
     var y = stanData.y = d3.event.y;
@@ -102,6 +106,7 @@ stanSelect.data([{x: stanData.x, y: stanData.y}])
     return d.y;
   })
   .attr('xlink:href', stanImage)
+  .attr('class', 'stan')
   .call(drag);
 
 

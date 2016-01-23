@@ -13,6 +13,27 @@ body{
   border: 1px solid red;
   stroke: red;
 }
+
+.asteroid {
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+  transform: rotate(45deg);
+  transform-origin: 50% 50%;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.scoreboard {
+  position: fixed;
+}
+
 .board{
   height: 1000px;
 }
@@ -20,4 +41,12 @@ body{
 
 h1{
   color: white;
+}
+
+.stan:active{
+  cursor: none;
+}
+
+.stan{
+  cursor: move;
 }
